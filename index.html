@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UzLeetCode</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg:      #0d0f14;
+    --surface: #161920;
+    --border:  #252830;
+    --text:    #e8eaf0;
+    --muted:   #6b7280;
+    --green:   #22c55e;
+    --red:     #ef4444;
+    --blue:    #3b82f6;
+    --yellow:  #f59e0b;
+    --accent:  #6366f1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.2rem; color: var(--accent); }
+  .logo span { color: var(--green); }
+  .nav-right { display: flex; gap: 0.75rem; align-items: center; }
+
+  .btn { padding: 0.45rem 1.1rem; border-radius: 6px; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 600; transition: opacity 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn:hover { opacity: 0.88; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-ghost   { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-green   { background: var(--green); color: #000; }
+  .btn-red     { background: var(--red); color: #fff; }
+  .btn-sm      { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* AUTH */
+  .auth-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); }
+  .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 400px; }
+  .auth-box h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .auth-box p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.75rem; }
+  .form-group { margin-bottom: 1rem; }
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  input { width: 100%; padding: 0.65rem 0.9rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.9rem; transition: border-color 0.15s; }
+  input:focus { outline: none; border-color: var(--accent); }
+  .auth-toggle { margin-top: 1.25rem; text-align: center; font-size: 0.875rem; color: var(--muted); }
+  .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+  /* PROBLEMS */
+  .problems-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .problems-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .problems-header h1 { font-size: 1.4rem; }
+  .problems-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .problem-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .problem-row:hover { border-color: var(--accent); background: #1c1f2b; }
+  .problem-row-left { display: flex; flex-direction: column; gap: 0.25rem; }
+  .problem-title { font-weight: 600; font-size: 0.95rem; }
+  .problem-slug  { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+
+  .difficulty { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 999px; }
+  .difficulty.Easy   { background: #14532d; color: var(--green); }
+  .difficulty.Medium { background: #451a03; color: var(--yellow); }
+  .difficulty.Hard   { background: #450a0a; color: var(--red); }
+
+  /* SOLVE */
+  .solve-wrap { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 60px); }
+
+  .problem-panel { padding: 1.5rem; overflow-y: auto; border-right: 1px solid var(--border); }
+  .problem-panel h2 { font-size: 1.2rem; }
+
+  /* ── FORMATTED PROBLEM CONTENT ── */
+  .problem-content { color: #c4c8d6; font-size: 0.9rem; line-height: 1.75; margin-top: 1rem; }
+  .problem-content p { margin-bottom: 0.85rem; }
+  .problem-content strong { color: var(--text); font-weight: 700; }
+  .problem-content em { color: var(--yellow); font-style: italic; }
+
+  .problem-content .example-block {
+    background: #0a0c10;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.85rem 1rem;
+    margin: 0.75rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #a9b1d6;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+
+  .problem-content .constraints-block {
+    background: #12141a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+  }
+
+  .problem-content .constraints-block .constraints-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .problem-content .constraints-block ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .problem-content .constraints-block li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #a9b1d6;
+    padding: 0.15rem 0;
+  }
+
+  .problem-content .constraints-block li::before {
+    content: "• ";
+    color: var(--accent);
+  }
+
+  .problem-content .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin: 1.1rem 0 0.4rem;
+  }
+
+  /* EDITOR */
+  .editor-panel { display: flex; flex-direction: column; padding: 1.5rem; gap: 1rem; }
+  .editor-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  textarea { flex: 1; background: #0a0c10; border: 1px solid var(--border); border-radius: 8px; color: #a9b1d6; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; padding: 1rem; resize: none; line-height: 1.6; transition: border-color 0.15s; }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .result-box { border-radius: 8px; padding: 1rem 1.25rem; font-size: 0.875rem; line-height: 1.6; display: none; }
+  .result-box.correct { display: block; background: #052e16; border: 1px solid var(--green); color: var(--green); }
+  .result-box.wrong   { display: block; background: #1c0607; border: 1px solid var(--red); color: #fca5a5; }
+  .result-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
+  .editor-actions { display: flex; gap: 0.75rem; align-items: center; }
+  .loading-text { color: var(--muted); font-size: 0.85rem; display: none; }
+
+  /* PROFILE */
+  .profile-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .profile-header { margin-bottom: 2rem; }
+  .profile-header h1 { font-size: 1.6rem; }
+  .profile-header p  { color: var(--muted); margin-top: 0.25rem; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; text-align: center; }
+  .stat-number { font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .stat-label  { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+  .stat-card.green .stat-number { color: var(--green); }
+  .stat-card.red   .stat-number { color: var(--red); }
+  .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .submission-item { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.875rem; }
+  .submission-item .problem-name { font-weight: 600; }
+  .submission-item .sub-time     { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+  .badge { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+  .badge.correct { background: #052e16; color: var(--green); }
+  .badge.wrong   { background: #1c0607; color: var(--red); }
+
+  /* PROBLEMS */
+  .problems-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .problems-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .problems-header h1 { font-size: 1.4rem; }
+  .problems-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .problem-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .problem-row:hover { border-color: var(--accent); background: #1c1f2b; }
+  .problem-title { font-weight: 600; font-size: 0.95rem; }
+  .problem-slug  { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ADMIN */
+  .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .admin-wrap h1 { font-size: 1.4rem; margin-bottom: 1.5rem; }
+  .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .admin-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem; text-align: center; }
+  .admin-card .num { font-size: 1.8rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+  .admin-card .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+  .admin-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .admin-section h3 { font-size: 1rem; margin-bottom: 1rem; }
+
+  /* Admin tabs */
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .tab-btn { padding: 0.4rem 1.1rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'Outfit',sans-serif; font-size: 0.85rem; font-weight: 600; transition: all 0.15s; }
+  .tab-btn.active.easy   { background:#14532d; color:var(--green);  border-color:var(--green); }
+  .tab-btn.active.medium { background:#451a03; color:var(--yellow); border-color:var(--yellow); }
+  .tab-btn.active.hard   { background:#450a0a; color:var(--red);    border-color:var(--red); }
+
+  .admin-problem-row { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; gap: 0.5rem; }
+  .admin-problem-row:last-child { border-bottom: none; }
+  .admin-problem-row .apt { font-weight: 600; flex: 1; }
+  .admin-problem-row .aslug { font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted); margin-left:0.5rem; }
+  .badge-draft     { background:#1c1f2b; color:var(--muted);  padding:0.2rem 0.55rem; border-radius:999px; font-size:0.72rem; font-weight:700; }
+  .badge-published { background:#052e16; color:var(--green);  padding:0.2rem 0.55rem; border-radius:999px; font-size:0.72rem; font-weight:700; }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; font-size: 0.875rem; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 999; max-width: 320px; }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.error   { border-color: var(--red); color: #fca5a5; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; color: var(--muted); padding: 3rem; font-size: 0.9rem; }
+
+  .back-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 0.875rem; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.25rem; padding: 0; }
+  .back-btn:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Uz<span>Leet</span>Code</div>
+  <div class="nav-right" id="nav-right"></div>
+</nav>
+
+<!-- AUTH -->
+<div class="page active" id="page-auth">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <h2 id="auth-title">Xush kelibsiz</h2>
+      <p id="auth-sub">Davom etish uchun tizimga kiring</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input id="auth-username" type="text" placeholder="username" />
+      </div>
+      <div class="form-group">
+        <label>Parol</label>
+        <input id="auth-password" type="password" placeholder="••••••" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:0.5rem" onclick="handleAuth()">Kirish</button>
+      <div class="auth-toggle">
+        <span id="auth-toggle-text">Akkaunt yo'qmi?</span>
+        <a onclick="toggleAuth()"> Ro'yxatdan o'tish</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEMS -->
+<div class="page" id="page-problems">
+  <div class="problems-wrap">
+    <div class="problems-header"><h1>Masalalar</h1></div>
+    <div class="problems-list" id="problems-list"><div class="empty">Yuklanmoqda...</div></div>
+  </div>
+</div>
+
+<!-- SOLVE -->
+<div class="page" id="page-solve">
+  <div class="solve-wrap">
+    <div class="problem-panel">
+      <button class="back-btn" onclick="showPage('problems')">← Masalalar</button>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem">
+        <h2 id="solve-title">Masala</h2>
+        <span class="difficulty" id="solve-difficulty"></span>
+      </div>
+      <div class="problem-content" id="solve-content">
+        <span class="spinner"></span> Tarjima qilinmoqda...
+      </div>
+    </div>
+    <div class="editor-panel">
+      <div class="editor-label">Python kodi</div>
+      <textarea id="code-editor" placeholder="# Kodingizni shu yerga yozing...
+def solution():
+    pass"></textarea>
+      <div id="result-box" class="result-box">
+        <div class="result-title" id="result-title"></div>
+        <div id="result-feedback"></div>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-green" onclick="submitCode()">▶ Yuborish</button>
+        <span class="loading-text" id="submit-loading"><span class="spinner"></span> AI tekshirmoqda...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="profile-wrap">
+    <div class="profile-header">
+      <h1 id="profile-username">Profil</h1>
+      <p>Sizning statistikangiz</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Jami yuborishlar</div></div>
+      <div class="stat-card green"><div class="stat-number" id="stat-correct">0</div><div class="stat-label">To'g'ri</div></div>
+      <div class="stat-card red"><div class="stat-number" id="stat-wrong">0</div><div class="stat-label">Noto'g'ri</div></div>
+    </div>
+    <div class="section-title">So'nggi yuborishlar</div>
+    <div id="recent-submissions"><div class="empty">Hali yuborish yo'q</div></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="admin-wrap">
+    <h1>⚙️ Admin Panel</h1>
+    <div class="admin-stats" id="admin-stats-grid"></div>
+
+    <div class="admin-section">
+      <h3>Masalalar katalogi</h3>
+      <div class="tabs">
+        <button class="tab-btn active easy"   onclick="switchAdminTab('Easy')"  id="atab-Easy">🟢 Easy</button>
+        <button class="tab-btn medium"        onclick="switchAdminTab('Medium')" id="atab-Medium">🟡 Medium</button>
+        <button class="tab-btn hard"          onclick="switchAdminTab('Hard')"  id="atab-Hard">🔴 Hard</button>
+      </div>
+      <div id="admin-problems-list"><div class="empty">Yuklanmoqda...</div></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>Eng ko'p urinilgan masalalar</h3>
+      <div id="top-problems-list"><div class="empty">Yuklanmoqda...</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = "";
+let token    = localStorage.getItem("token") || "";
+let username = localStorage.getItem("username") || "";
+let isAdmin  = localStorage.getItem("is_admin") === "true";
+let isLoginMode = true;
+let currentProblemSlug = "";
+
+// ── FORMAT PROBLEM CONTENT ──
+function formatProblemContent(text) {
+  if (!text) return "<em>Mazmun topilmadi</em>";
+
+  const lines = text.split("\n");
+  let html = "";
+  let inExample = false;
+  let exampleBuf = "";
+  let constraints = [];
+  let inConstraints = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Detect constraints section
+    if (/^cheklov|^constraint/i.test(trimmed)) {
+      inConstraints = true;
+      inExample = false;
+      if (exampleBuf) { html += `<div class="example-block">${escHtml(exampleBuf.trim())}</div>`; exampleBuf = ""; }
+      continue;
+    }
+
+    if (inConstraints) {
+      if (trimmed === "" && i < lines.length - 1 && !/^[-•*\d]/.test(lines[i+1]?.trim())) {
+        inConstraints = false;
+      } else if (trimmed) {
+        constraints.push(trimmed.replace(/^[-•*]\s*/, ""));
+        continue;
+      } else continue;
+    }
+
+    // Detect example blocks (lines starting with ``` or "Misol" / "Example")
+    if (trimmed.startsWith("```")) {
+      if (!inExample) { inExample = true; exampleBuf = ""; }
+      else {
+        inExample = false;
+        html += `<div class="example-block">${escHtml(exampleBuf.trim())}</div>`;
+        exampleBuf = "";
+      }
+      continue;
+    }
+
+    if (inExample) { exampleBuf += line + "\n"; continue; }
+
+    // Section labels like "Misol 1:", "Example 1:"
+    if (/^(misol|example)\s*\d*\s*:/i.test(trimmed)) {
+      html += `<div class="section-label">${escHtml(trimmed)}</div>`;
+      continue;
+    }
+
+    // Bullet list items
+    if (/^[•\-\*]\s/.test(trimmed)) {
+      html += `<p style="padding-left:1rem">• ${renderInline(trimmed.slice(2))}</p>`;
+      continue;
+    }
+
+    // Empty line = paragraph break
+    if (trimmed === "") { continue; }
+
+    // Normal paragraph
+    html += `<p>${renderInline(trimmed)}</p>`;
+  }
+
+  // Flush any open example
+  if (exampleBuf) html += `<div class="example-block">${escHtml(exampleBuf.trim())}</div>`;
+
+  // Render constraints block
+  if (constraints.length) {
+    html += `<div class="constraints-block">
+      <div class="constraints-title">Cheklovlar</div>
+      <ul>${constraints.map(c => `<li>${renderInline(c)}</li>`).join("")}</ul>
+    </div>`;
+  }
+
+  return html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function renderInline(text) {
+  return escHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/_(.+?)_/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, `<code style="background:#0a0c10;padding:0.1em 0.35em;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:0.82em;color:#a9b1d6">$1</code>`);
+}
+
+// ── HELPERS ──
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  if (name === "problems") loadProblems();
+  if (name === "profile")  loadProfile();
+  if (name === "admin")    loadAdmin();
+}
+
+function showToast(msg, type = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show " + type;
+  setTimeout(() => t.className = "", 3000);
+}
+
+async function api(method, path, body = null) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (token) opts.headers["Authorization"] = "Bearer " + token;
+  if (body)  opts.body = JSON.stringify(body);
+  const res  = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || "Xato yuz berdi");
+  return data;
+}
+
+function renderNav() {
+  const nav = document.getElementById("nav-right");
+  if (!token) { nav.innerHTML = ""; return; }
+  nav.innerHTML = `
+    <span style="color:var(--muted);font-size:0.875rem">👤 ${username}</span>
+    <button class="btn btn-ghost btn-sm" onclick="showPage('problems')">Masalalar</button>
+    <button class="btn btn-ghost btn-sm" onclick="showPage('profile')">Profil</button>
+    ${isAdmin ? `<button class="btn btn-ghost btn-sm" onclick="showPage('admin')">Admin</button>` : ""}
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Chiqish</button>
+  `;
+}
+
+function logout() {
+  localStorage.clear();
+  token = ""; username = ""; isAdmin = false;
+  renderNav(); showPage("auth");
+}
+
+// ── AUTH ──
+function toggleAuth() {
+  isLoginMode = !isLoginMode;
+  document.getElementById("auth-title").textContent = isLoginMode ? "Xush kelibsiz" : "Ro'yxatdan o'tish";
+  document.getElementById("auth-sub").textContent   = isLoginMode ? "Davom etish uchun tizimga kiring" : "Yangi akkaunt yarating";
+  document.getElementById("auth-toggle-text").textContent = isLoginMode ? "Akkaunt yo'qmi?" : "Akkaunt bormi?";
+  document.querySelector(".auth-toggle a").textContent = isLoginMode ? " Ro'yxatdan o'tish" : " Kirish";
+  document.querySelector("[onclick='handleAuth()']").textContent = isLoginMode ? "Kirish" : "Ro'yxatdan o'tish";
+}
+
+async function handleAuth() {
+  const u = document.getElementById("auth-username").value.trim();
+  const p = document.getElementById("auth-password").value.trim();
+  if (!u || !p) { showToast("Username va parolni kiriting", "error"); return; }
+  try {
+    const endpoint = isLoginMode ? "/api/login" : "/api/signup";
+    const data = await api("POST", endpoint, { username: u, password: p });
+
+    if (!isLoginMode) {
+      // Signup muvaffaqiyatli — login sahifasiga o'tamiz
+      showToast("Ro'yxatdan o'tdingiz! Iltimos kiring.", "success");
+      isLoginMode = true;
+      document.getElementById("auth-title").textContent = "Xush kelibsiz";
+      document.getElementById("auth-sub").textContent   = "Davom etish uchun tizimga kiring";
+      document.getElementById("auth-toggle-text").textContent = "Akkaunt yo'qmi?";
+      document.querySelector(".auth-toggle a").textContent = " Ro'yxatdan o'tish";
+      document.querySelector("[onclick='handleAuth()']").textContent = "Kirish";
+      document.getElementById("auth-password").value = "";
+      return;
+    }
+
+    token = data.token; username = data.username; isAdmin = !!data.is_admin;
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", username);
+    localStorage.setItem("is_admin", isAdmin);
+    renderNav(); showPage("problems");
+    showToast("Xush kelibsiz, " + username + "! 👋", "success");
+  } catch (e) { showToast(e.message, "error"); }
+}
+
+// ── PROBLEMS ──
+async function loadProblems() {
+  const list = document.getElementById("problems-list");
+  list.innerHTML = `<div class="empty">Yuklanmoqda...</div>`;
+  try {
+    const problems = await api("GET", "/api/problems");
+    if (!problems.length) { list.innerHTML = `<div class="empty">Hali masala yo'q.</div>`; return; }
+    list.innerHTML = problems.map((p, i) => `
+      <div class="problem-row" onclick="openProblem('${p.slug}','${(p.title_uz||p.title_en).replace(/'/g,"\\'")}','${p.difficulty}')">
+        <div>
+          <div class="problem-title">${i+1}. ${p.title_uz || p.title_en}</div>
+          <div class="problem-slug">${p.slug}</div>
+        </div>
+        ${p.title_uz ? '<span style="color:var(--green);font-size:0.8rem">✓</span>' : ''}
+      </div>`).join("");
+  } catch(e) { list.innerHTML = `<div class="empty">Xato: ${e.message}</div>`; }
+}
+
+async function openProblem(slug, titleFallback, difficulty) {
+  currentProblemSlug = slug;
+  document.getElementById("solve-title").textContent = titleFallback;
+  document.getElementById("solve-difficulty").textContent = difficulty;
+  document.getElementById("solve-difficulty").className = `difficulty ${difficulty}`;
+  document.getElementById("solve-content").innerHTML = `<span class="spinner"></span> Tarjima qilinmoqda...`;
+  document.getElementById("result-box").className = "result-box";
+  document.getElementById("code-editor").value = "";
+  showPage("solve");
+  try {
+    const data = await api("GET", `/api/problems/${slug}`);
+    document.getElementById("solve-title").textContent = data.title_uz || data.title_en;
+    document.getElementById("solve-content").innerHTML = formatProblemContent(data.content_uz || data.content_en || "");
+  } catch (e) {
+    document.getElementById("solve-content").innerHTML = `<p style="color:var(--red)">Xato: ${e.message}</p>`;
+  }
+}
+
+// ── SUBMIT ──
+async function submitCode() {
+  const code = document.getElementById("code-editor").value.trim();
+  if (!code) { showToast("Iltimos kod yozing", "error"); return; }
+  const resultBox = document.getElementById("result-box");
+  const loading   = document.getElementById("submit-loading");
+  const submitBtn = document.querySelector("[onclick='submitCode()']");
+  resultBox.className = "result-box";
+  loading.style.display = "inline-flex";
+  submitBtn.disabled = true;
+  try {
+    const data = await api("POST", "/api/submit", { problem_slug: currentProblemSlug, code });
+    loading.style.display = "none"; submitBtn.disabled = false;
+    resultBox.className = "result-box " + (data.is_correct ? "correct" : "wrong");
+    document.getElementById("result-title").textContent = data.is_correct ? "✅ To'g'ri!" : "❌ Noto'g'ri";
+    document.getElementById("result-feedback").textContent = data.feedback;
+  } catch (e) {
+    loading.style.display = "none"; submitBtn.disabled = false;
+    showToast(e.message, "error");
+  }
+}
+
+// ── PROFILE ──
+async function loadProfile() {
+  try {
+    const data = await api("GET", "/api/profile");
+    document.getElementById("profile-username").textContent = "👤 " + data.username;
+    document.getElementById("stat-total").textContent   = data.total;
+    document.getElementById("stat-correct").textContent = data.correct;
+    document.getElementById("stat-wrong").textContent   = data.wrong;
+    const recEl = document.getElementById("recent-submissions");
+    if (!data.recent.length) { recEl.innerHTML = `<div class="empty">Hali yuborish yo'q</div>`; return; }
+    recEl.innerHTML = data.recent.map(s => `
+      <div class="submission-item">
+        <div>
+          <div class="problem-name">${s.title_uz || s.problem_slug}</div>
+          <div class="sub-time">${s.submitted_at.replace("T"," ").slice(0,16)}</div>
+        </div>
+        <span class="badge ${s.is_correct ? 'correct' : 'wrong'}">${s.is_correct ? "✅ To'g'ri" : "❌ Noto'g'ri"}</span>
+      </div>`).join("");
+  } catch (e) { showToast(e.message, "error"); }
+}
+
+// ── ADMIN ──
+let allAdminProblems = [];
+let currentAdminTab = 'Easy';
+
+function switchAdminTab(diff) {
+  currentAdminTab = diff;
+  ['Easy','Medium','Hard'].forEach(d => {
+    const btn = document.getElementById('atab-'+d);
+    btn.className = 'tab-btn' + (d === diff ? ' active '+d.toLowerCase() : '');
+  });
+  renderAdminTab();
+}
+
+function renderAdminTab() {
+  const el = document.getElementById('admin-problems-list');
+  const filtered = allAdminProblems.filter(p => p.difficulty === currentAdminTab);
+  if (!filtered.length) { el.innerHTML = `<div class="empty">Yo'q</div>`; return; }
+  el.innerHTML = filtered.map(p => `
+    <div class="admin-problem-row">
+      <div style="flex:1;min-width:0">
+        <span class="apt">${p.title_en}</span>
+        <span class="aslug">${p.slug}</span>
+      </div>
+      <span class="badge-${p.translated ? 'published' : 'draft'}">
+        ${p.translated ? '✅ Tarjima bor' : '⬜ Tarjimasiz'}
+      </span>
+    </div>`).join('');
+}
+
+async function togglePublish(slug, publish) {
+  try {
+    const endpoint = publish ? `/api/admin/publish/${slug}` : `/api/admin/unpublish/${slug}`;
+    await api("POST", endpoint);
+    const p = allAdminProblems.find(x => x.slug === slug);
+    if (p) p.is_published = publish ? 1 : 0;
+    renderAdminTab();
+    showToast(publish ? "✅ Publish qilindi" : "Yashirildi", publish ? "success" : "");
+  } catch(e) { showToast(e.message, "error"); }
+}
+
+async function loadAdmin() {
+  try {
+    const stats = await api("GET", "/api/admin/stats");
+    document.getElementById("admin-stats-grid").innerHTML = `
+      <div class="admin-card"><div class="num">${stats.total_users}</div><div class="lbl">Foydalanuvchilar</div></div>
+      <div class="admin-card"><div class="num">${stats.total_problems}</div><div class="lbl">Publish qilingan</div></div>
+      <div class="admin-card"><div class="num">${stats.total_submissions}</div><div class="lbl">Yuborishlar</div></div>
+      <div class="admin-card"><div class="num">${stats.accuracy_percent}%</div><div class="lbl">To'g'rilik</div></div>`;
+    document.getElementById("top-problems-list").innerHTML = stats.top_problems.length
+      ? stats.top_problems.map(p => `<div class="admin-problem-row"><span>${p.problem_slug}</span><span style="color:var(--muted)">${p.attempts} ta urinish</span></div>`).join("")
+      : `<div class="empty">Hali urinish yo'q</div>`;
+  } catch(e) { showToast(e.message, "error"); }
+
+  try {
+    allAdminProblems = await api("GET", "/api/admin/problems");
+    renderAdminTab();
+  } catch(e) { showToast(e.message, "error"); }
+}
+
+// ── INIT ──
+renderNav();
+if (token) showPage("problems"); else showPage("auth");
+</script>
+</body>
+</html>
